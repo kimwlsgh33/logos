@@ -26,6 +26,7 @@ class FullRowTextField extends StatelessWidget {
             controller: controller,
             decoration: InputDecoration(
               hintText: hintText,
+              hintStyle: TextStyle(color: Theme.of(context).hintColor),
               border: inputBorder,
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(
@@ -43,6 +44,7 @@ class FullRowTextField extends StatelessWidget {
               ),
               fillColor: Theme.of(context).colorScheme.surface,
             ),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
             keyboardType: TextInputType.text,
             onSubmitted: (value) {
               if (value.isNotEmpty) {

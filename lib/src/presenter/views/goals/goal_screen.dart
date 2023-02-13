@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:logos/src/model/entities/goal.dart';
-import 'package:logos/src/model/repositories/goal_repository.dart';
+// import 'package:logos/src/model/repositories/goal_repository.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
+import 'package:logos/src/presenter/blocs/providers/theme_bloc.dart';
 import 'package:logos/src/presenter/views/widgets/full_row_textfield.dart';
 import 'package:logos/src/presenter/views/widgets/goal_btn_bar.dart';
 import 'package:logos/src/presenter/views/widgets/list_item.dart';
@@ -64,12 +66,18 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          GoalRepository.deleteDatabase();
-        },
-        child: const Icon(Icons.close),
-      ),
+      floatingActionButton:
+          BlocBuilder<ThemeBloc, bool>(builder: (context, state) {
+        return FloatingActionButton(
+          onPressed: () {
+            Get.changeThemeMode(state ? ThemeMode.light : ThemeMode.dark);
+            context.read<ThemeBloc>().add(ChangeTheme());
+          },
+          child: state
+              ? const Icon(Icons.light_mode_rounded)
+              : const Icon(Icons.dark_mode_rounded),
+        );
+      }),
     );
   }
 
