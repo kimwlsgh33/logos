@@ -17,65 +17,61 @@ class _WisdomScreenState extends State<WisdomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
+      body: SizedBox(
+        width: double.infinity,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const SizedBox(height: 80),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Card(
-                  elevation: 4,
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const FaIcon(
-                          FontAwesomeIcons.quoteLeft,
-                          size: 50,
-                        ),
-                        mediumVerticalSpace(),
-                        Row(
-                          children: [
-                            Text(
-                              '"',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                                fontFamily: GoogleFonts.nanumMyeongjo().fontFamily,
-                              ),
-                            ),
-                            Text(
-                              wisdoms[index],
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                                fontFamily:
-                                    GoogleFonts.nanumMyeongjo().fontFamily,
-                              ),
-                            ),
-                            Text(
-                              '"',
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: Colors.black,
-                                fontFamily: GoogleFonts.nanumMyeongjo().fontFamily,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.8,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 10,
+                    offset: const Offset(0, 10),
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const FaIcon(
+                    FontAwesomeIcons.quoteLeft,
+                    size: 50,
+                  ),
+                  mediumVerticalSpace(),
+                  Text(
+                    '"${stoics[index].wisdoms[0]}"',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontFamily: GoogleFonts.nanumMyeongjo().fontFamily,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.ltr,
+                  ),
+                  mediumVerticalSpace(),
+                  Text(
+                    '- ${stoics[index].name} -',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.black,
+                      fontFamily: GoogleFonts.nanumMyeongjo().fontFamily,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.ltr,
+                  ),
+                ],
+              ),
             ),
             mediumVerticalSpace(),
             OutlinedButton(
