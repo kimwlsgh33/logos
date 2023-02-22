@@ -93,9 +93,19 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
           key: _formKey,
           child: Column(
             children: [
-              Text(widget.goal.content),
+              Text(
+                widget.goal.content,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
               smallVerticalSpace(),
-              Text(widget.goal.priority.toString()),
+              Text(
+                widget.goal.priority.toString(),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
               smallVerticalSpace(),
               TextFormField(
                 controller: _textController,
@@ -109,6 +119,8 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
                   border: OutlineInputBorder(),
                   labelText: '목표',
                 ),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
               ),
               mediumVerticalSpace(),
               TextFormField(
@@ -124,6 +136,8 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
                   labelText: '우선순위',
                 ),
                 keyboardType: TextInputType.number,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
               )
             ],
           ),
