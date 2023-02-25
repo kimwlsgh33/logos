@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:logos/src/model/entities/goal.dart';
@@ -28,6 +29,10 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
     context.read<GoalBloc>().add(InitGoal());
 
     void onAdd(value) => context.read<GoalBloc>().add(AddGoal(value));
+
+    SystemChrome.setSystemUIOverlayStyle(context.read<ThemeBloc>().state
+        ? SystemUiOverlayStyle.light
+        : SystemUiOverlayStyle.dark);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
