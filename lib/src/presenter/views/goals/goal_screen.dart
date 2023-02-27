@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:logos/src/model/entities/goal.dart';
 // import 'package:logos/src/model/repositories/goal_repository.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
@@ -34,55 +33,55 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
         ? SystemUiOverlayStyle.light
         : SystemUiOverlayStyle.dark);
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  const TypingCard(
-                    text: '만약 어떤 목표라도 성취할수있는\n 능력을 가지고 있다면?',
-                    icon: Icons.where_to_vote_rounded,
-                  ),
-                  smallVerticalSpace(),
-                  FullRowTextField(
-                    controller: _textController,
-                    hintText: '원하는 것 추가하기',
-                    onSubmitted: onAdd,
-                  ),
-                  smallVerticalSpace(),
-                  Hero(
-                    tag: 'goalBtnBar',
-                    child: GoalBtnBar(
-                      onAdd: onAdd,
-                      controller: _textController,
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.background,
+        body: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const TypingCard(
+                      text: '만약 어떤 목표라도 성취할수있는\n 능력을 가지고 있다면?',
+                      icon: Icons.where_to_vote_rounded,
                     ),
-                  ),
-                  mediumVerticalSpace()
-                ],
+                    smallVerticalSpace(),
+                    FullRowTextField(
+                      controller: _textController,
+                      hintText: '원하는 것 추가하기',
+                      onSubmitted: onAdd,
+                    ),
+                    smallVerticalSpace(),
+                    Hero(
+                      tag: 'goalBtnBar',
+                      child: GoalBtnBar(
+                        onAdd: onAdd,
+                        controller: _textController,
+                      ),
+                    ),
+                    mediumVerticalSpace()
+                  ],
+                ),
               ),
-            ),
-            // const GoalList(),
-            BlocBuilder<GoalBloc, List<Goal>>(builder: goalListBuilder),
-          ],
+              // const GoalList(),
+              BlocBuilder<GoalBloc, List<Goal>>(builder: goalListBuilder),
+            ],
+          ),
         ),
+        floatingActionButton:
+            BlocBuilder<ThemeBloc, bool>(builder: (context, isDark) {
+          return FloatingActionButton(
+            onPressed: () => context.read<ThemeBloc>().add(ChangeTheme()),
+            child: isDark
+                ? const Icon(Icons.light_mode_rounded)
+                : const Icon(Icons.dark_mode_rounded),
+          );
+        }),
       ),
-      floatingActionButton:
-          BlocBuilder<ThemeBloc, bool>(builder: (context, state) {
-        return FloatingActionButton(
-          onPressed: () {
-            Get.changeThemeMode(state ? ThemeMode.light : ThemeMode.dark);
-            context.read<ThemeBloc>().add(ChangeTheme());
-          },
-          child: state
-              ? const Icon(Icons.light_mode_rounded)
-              : const Icon(Icons.dark_mode_rounded),
-        );
-      }),
     );
   }
 

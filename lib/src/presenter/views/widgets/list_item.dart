@@ -54,8 +54,12 @@ class ListItem extends StatelessWidget {
             return showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                      title: const Text("삭제하시겠습니까?"),
-                      content: const Text("하위 목표까지 모두 삭제됩니다."),
+                      title: Text("삭제하시겠습니까?",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface)),
+                      content: Text("하위 목표까지 모두 삭제됩니다.",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface)),
                       actions: [
                         ElevatedButton(
                           onPressed: () => Navigator.of(context).pop(true),

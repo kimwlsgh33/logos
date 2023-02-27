@@ -41,10 +41,10 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('목표 수정'),
-        content: const Text('수정하시겠습니까?'),
+        title: Text('목표 수정', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        content: Text('수정하시겠습니까?',style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('취소'),
           ),
@@ -52,7 +52,7 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
               selector: (state) =>
                   state.firstWhere((element) => element.id == widget.goal.id),
               builder: (context, goal) {
-                return TextButton(
+                return ElevatedButton(
                   onPressed: () {
                     context.read<GoalBloc>().add(EditGoal(goal.copyWith(
                           content: _textController.text,
@@ -81,80 +81,83 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const TypingCard(
-          text: "목표를 수정해보세요",
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Text(
-                widget.goal.content,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              smallVerticalSpace(),
-              Text(
-                widget.goal.priority.toString(),
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              smallVerticalSpace(),
-              TextFormField(
-                controller: _textController,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return '목표를 입력해주세요';
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '목표',
-                ),
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              ),
-              mediumVerticalSpace(),
-              TextFormField(
-                controller: _priorityController,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return '우선순위를 입력해주세요';
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: '우선순위',
-                ),
-                keyboardType: TextInputType.number,
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onSurface),
-              )
-            ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const TypingCard(
+            text: "목표를 수정해보세요",
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (_formKey.currentState!.validate()) {
-            if (widget.goal.content != _textController.text ||
-                widget.goal.priority != int.parse(_priorityController.text)) {
-              _onSubmitted();
-            } else {
-              Get.back();
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Text(
+                  widget.goal.content,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                smallVerticalSpace(),
+                Text(
+                  widget.goal.priority.toString(),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                smallVerticalSpace(),
+                TextFormField(
+                  controller: _textController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return '목표를 입력해주세요';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: '목표',
+                  ),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                ),
+                mediumVerticalSpace(),
+                TextFormField(
+                  controller: _priorityController,
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return '우선순위를 입력해주세요';
+                    }
+                    return null;
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: '우선순위',
+                  ),
+                  keyboardType: TextInputType.number,
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
+                )
+              ],
+            ),
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              if (widget.goal.content != _textController.text ||
+                  widget.goal.priority != int.parse(_priorityController.text)) {
+                _onSubmitted();
+              } else {
+                Get.back();
+              }
             }
-          }
-        },
-        child: const Icon(Icons.check),
+          },
+          child: const Icon(Icons.check),
+        ),
       ),
     );
   }

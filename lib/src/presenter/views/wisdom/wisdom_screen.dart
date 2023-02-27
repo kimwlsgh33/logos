@@ -17,16 +17,15 @@ class _WisdomScreenState extends State<WisdomScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox(
-        width: double.infinity,
+      body: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 160),
             Container(
               width: MediaQuery.of(context).size.width * 0.8,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
                   BoxShadow(
@@ -40,7 +39,7 @@ class _WisdomScreenState extends State<WisdomScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const FaIcon(
-                    FontAwesomeIcons.quoteLeft,
+                    FontAwesomeIcons.quoteRight,
                     size: 50,
                   ),
                   mediumVerticalSpace(),
@@ -48,7 +47,7 @@ class _WisdomScreenState extends State<WisdomScreen> {
                     '"${stoics[index].wisdoms[0]}"',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontFamily: GoogleFonts.nanumMyeongjo().fontFamily,
                       fontWeight: FontWeight.w600,
                     ),
@@ -62,7 +61,7 @@ class _WisdomScreenState extends State<WisdomScreen> {
                     '- ${stoics[index].name} -',
                     style: TextStyle(
                       fontSize: 20,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontFamily: GoogleFonts.nanumMyeongjo().fontFamily,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -83,7 +82,7 @@ class _WisdomScreenState extends State<WisdomScreen> {
               ),
               onPressed: () {
                 setState(() {
-                  index = index == wisdoms.length - 1 ? 0 : index + 1;
+                  index = index == wisdoms.length ? 0 : index + 1;
                 });
               },
               child: Text(

@@ -32,55 +32,58 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
     onAdd(String value) =>
         context.read<GoalBloc>().add(AddGoal(value, parentId: widget.goal.id));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const TypingCard(text: '어떻게?'),
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.backspace_rounded),
-            onPressed: () => Get.offAllNamed(GetRouter.home),
-            tooltip: '목표 목록으로 돌아가기',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Hero(
-                  tag: widget.goal.id,
-                  child: BlocSelector<GoalBloc, List<Goal>, Goal>(
-                      selector: (state) => state.firstWhere(
-                            (goal) => goal.id == widget.goal.id,
-                            orElse: () => Goal.empty(),
-                          ),
-                      builder: (context, state) {
-                        return AnswerCard(goal: state, isDetail: true);
-                      }),
-                ),
-                smallVerticalSpace(),
-                FullRowTextField(
-                  controller: _controller,
-                  hintText: '계획을 입력해주세요',
-                  onSubmitted: onAdd,
-                ),
-                smallVerticalSpace(),
-                Hero(
-                  tag: 'goalBtnBar',
-                  child: GoalBtnBar(
-                    controller: _controller,
-                    onAdd: onAdd,
-                  ),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const TypingCard(text: '어떻게?'),
+          elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.backspace_rounded),
+              onPressed: () => Get.offAllNamed(GetRouter.home),
+              tooltip: '목표 목록으로 돌아가기',
             ),
-          ),
-          mediumVerticalSpace(),
-          BlocBuilder<GoalBloc, List<Goal>>(builder: goalListBuilder)
-        ],
+          ],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Hero(
+                    tag: widget.goal.id,
+                    child: BlocSelector<GoalBloc, List<Goal>, Goal>(
+                        selector: (state) => state.firstWhere(
+                              (goal) => goal.id == widget.goal.id,
+                              orElse: () => Goal.empty(),
+                            ),
+                        builder: (context, state) {
+                          return AnswerCard(goal: state, isDetail: true);
+                        }),
+                  ),
+                  smallVerticalSpace(),
+                  FullRowTextField(
+                    controller: _controller,
+                    hintText: '계획을 입력해주세요',
+                    onSubmitted: onAdd,
+                  ),
+                  smallVerticalSpace(),
+                  Hero(
+                    tag: 'goalBtnBar',
+                    child: GoalBtnBar(
+                      controller: _controller,
+                      onAdd: onAdd,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            mediumVerticalSpace(),
+            BlocBuilder<GoalBloc, List<Goal>>(builder: goalListBuilder)
+          ],
+        ),
       ),
     );
   }
