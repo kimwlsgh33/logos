@@ -46,7 +46,7 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     const TypingCard(
-                      text: '만약 어떤 목표라도 성취할수있는\n 능력을 가지고 있다면?',
+                      text: '최종 목표를 작성하세요!',
                       icon: Icons.where_to_vote_rounded,
                     ),
                     smallVerticalSpace(),
