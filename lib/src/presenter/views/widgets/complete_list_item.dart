@@ -29,7 +29,7 @@ class CompleteListItem extends StatelessWidget {
             ),
           ),
           Dismissible(
-            key: Key(goal.id),
+            key: UniqueKey(),
             background: const CancelContainer(),
             secondaryBackground: const ErrorContainer(),
             onDismissed: (direction) {

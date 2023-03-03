@@ -17,24 +17,32 @@ EventTransformer<T> debounceTime<T>(Duration duration) {
 class GoalBloc extends Bloc<GoalEvent, GoalState> {
   final GoalRepository _goalRepository;
   GoalBloc(this._goalRepository) : super(InitGoalState()) {
-    on<LoadRootGoalEvent>(_loadRootGoal);
-    on<LoadCompleteGoalEvent>(_loadCompleteGoal);
-    on<AddGoalEvent>(
-      _addGoal,
-      transformer: droppable(), // when new event comes, drop previous event
-    );
+    on<GoalEvent>(_onGoalEvent, transformer: sequential());
+    on<AddGoalEvent>(_addGoal);
     on<RemoveGoalEvent>(_removeGoal);
     on<CompleteGoalEvent>(_completeGoal);
     on<EditGoalEvent>(_editGoal);
+    on<CancelGoalCompleteEvent>(_cancelGoalComplete);
     add(LoadRootGoalEvent());
     add(LoadCompleteGoalEvent());
+  }
+
+  _onGoalEvent(GoalEvent event, Emitter<GoalState> emit) async {
+    if (event is LoadRootGoalEvent) {
+      await _loadRootGoal(event, emit);
+    } else if (event is LoadCompleteGoalEvent) {
+      await _loadCompleteGoal(event, emit);
+    }
   }
 
   //================================================================
   // Bloc Initializer
   //================================================================
   _loadRootGoal(LoadRootGoalEvent event, Emitter<GoalState> emit) async {
-    emit(InitGoalState());
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
     try {
       final roots = await _goalRepository.getYet();
       emit(LoadedGoalState(
@@ -48,12 +56,16 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
 
   _loadCompleteGoal(
       LoadCompleteGoalEvent event, Emitter<GoalState> emit) async {
-    emit(InitGoalState());
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
+
     try {
       final completed = await _goalRepository.getCompleted();
       emit(LoadedGoalState(
         rootGoals: state.rootGoals,
-        completeGoals: completed ,
+        completeGoals: completed,
       ));
     } catch (e) {
       emit(ErrorGoalState(e.toString()));
@@ -64,7 +76,10 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
   // Bloc에 전달된 Event를 처리하는 함수
   //================================================================
   void _addGoal(AddGoalEvent event, Emitter<GoalState> emit) {
-    emit(const LoadingGoalState());
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
     // 만약에, 완료한 목표를 복구한다면, UI만 변경
     if (event.goal == null) {
       var goal = Goal(
@@ -86,35 +101,30 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
     }
   }
 
-  void _removeGoal(RemoveGoalEvent event, Emitter<GoalState> emit) {
-    emit(const LoadingGoalState());
+  void _removeGoal(RemoveGoalEvent event, Emitter<GoalState> emit) async {
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
     _goalRepository.remove(event.goal);
+    final next =
+        state.rootGoals!.where((element) => element != event.goal).toList();
+
     emit(LoadedGoalState(
-      rootGoals:
-          state.rootGoals!.where((element) => element != event.goal).toList(),
+      rootGoals: next,
       completeGoals: state.completeGoals,
     ));
   }
 
-  void _completeGoal(CompleteGoalEvent event, Emitter<GoalState> emit) async {
-    emit(const LoadingGoalState());
-    // value copy
-    var goal = event.goal.copyWith(done: true);
-    await _goalRepository.update(goal);
-    // root -> complete
-    emit(LoadedGoalState(
-      rootGoals:
-          state.rootGoals!.where((element) => element != event.goal).toList(),
-      completeGoals: [...state.completeGoals!, goal],
-    ));
-  }
-
   void _editGoal(EditGoalEvent event, Emitter<GoalState> emit) {
-    emit(const LoadingGoalState());
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
     // type mismatch => not update ui
     _goalRepository.update(event.goal);
 
-    var goals = state.rootGoals!.map((prev) {
+    final goals = state.rootGoals!.map((prev) {
       if (prev.id == event.goal.id) {
         return event.goal;
       } else {
@@ -126,6 +136,42 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
     emit(LoadedGoalState(
       rootGoals: goals,
       completeGoals: state.completeGoals,
+    ));
+  }
+
+  void _completeGoal(CompleteGoalEvent event, Emitter<GoalState> emit) async {
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
+    // value copy
+    final goal = event.goal.copyWith(done: true);
+    final nextRoots =
+        state.rootGoals!.where((element) => element != event.goal).toList();
+    _goalRepository.update(goal);
+
+    // root -> complete
+    emit(LoadedGoalState(
+      rootGoals: nextRoots,
+      completeGoals: [...state.completeGoals!, goal],
+    ));
+  }
+
+  void _cancelGoalComplete(
+      CancelGoalCompleteEvent event, Emitter<GoalState> emit) {
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
+    // value copy
+    final goal = event.goal.copyWith(done: false);
+    final nextComplete =
+        state.completeGoals!.where((element) => element != event.goal).toList();
+    _goalRepository.update(goal);
+    // complete -> root
+    emit(LoadedGoalState(
+      rootGoals: [...state.rootGoals!, goal],
+      completeGoals: nextComplete,
     ));
   }
 }

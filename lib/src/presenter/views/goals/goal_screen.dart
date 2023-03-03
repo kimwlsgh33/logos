@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logos/src/model/entities/goal.dart';
 // import 'package:logos/src/model/repositories/goal_repository.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/theme_bloc.dart';
@@ -63,7 +64,10 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
                 ),
               ),
               // const GoalList(),
-              const BlocBuilder<GoalBloc, GoalState>(builder: goalListBuilder),
+              BlocSelector<GoalBloc, GoalState, List<Goal>>(
+                selector: (state) => state.rootGoals!,
+                builder: goalListBuilder
+              ),
             ],
           ),
         ),
@@ -87,14 +91,14 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
   }
 }
 
-Widget goalListBuilder(BuildContext context, GoalState goals) {
+Widget goalListBuilder(BuildContext context, List<Goal> goals) {
   return Expanded(
     child: ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: goals.rootGoals!.length,
+      itemCount: goals.length,
       itemBuilder: (context, index) => ListItem(
-        key: ValueKey(goals.rootGoals![index].id),
-        goal: goals.rootGoals![index],
+        key: ValueKey(goals[index].id),
+        goal: goals[index],
         index: index,
       ),
       separatorBuilder: (context, index) => smallVerticalSpace(),

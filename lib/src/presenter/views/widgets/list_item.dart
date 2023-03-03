@@ -22,7 +22,7 @@ class ListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<GoalBloc, GoalState>(builder: (context, goals) {
       return Dismissible(
-        key: Key(goal.id),
+        key: UniqueKey(),
         background: const SuccessContainer(),
         secondaryBackground: const ErrorContainer(),
         onDismissed: (direction) {
