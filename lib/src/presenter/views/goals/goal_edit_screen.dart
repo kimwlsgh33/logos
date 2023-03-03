@@ -48,13 +48,13 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('취소'),
           ),
-          BlocSelector<GoalBloc, List<Goal>, Goal>(
+          BlocSelector<GoalBloc, GoalState, Goal>(
               selector: (state) =>
-                  state.firstWhere((element) => element.id == widget.goal.id),
+                  state.rootGoals!.firstWhere((element) => element.id == widget.goal.id),
               builder: (context, goal) {
                 return ElevatedButton(
                   onPressed: () {
-                    context.read<GoalBloc>().add(EditGoal(goal.copyWith(
+                    context.read<GoalBloc>().add(EditGoalEvent(goal.copyWith(
                           content: _textController.text,
                           priority: int.parse(_priorityController.text),
                         )));

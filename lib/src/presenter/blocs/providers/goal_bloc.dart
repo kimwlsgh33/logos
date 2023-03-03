@@ -1,4 +1,5 @@
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logos/src/base/utils.dart';
@@ -6,154 +7,236 @@ import 'package:logos/src/model/entities/goal.dart';
 import 'package:logos/src/model/repositories/goal_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
-abstract class GoalEvent {}
-
-//==============================================================================
-// Event 객체를 만들어서 Bloc에 전달
-//==============================================================================
-class InitGoal extends GoalEvent {}
-
-class AddGoal extends GoalEvent {
-  final String text;
-  final String parentId;
-  AddGoal(
-    this.text, {
-    this.parentId = 'root',
-  });
-}
-
-class RemoveGoal extends GoalEvent {
-  final Goal goal;
-  RemoveGoal(this.goal);
-}
-
-class EditGoal extends GoalEvent {
-  final Goal goal;
-  EditGoal(this.goal);
-}
-
-class CompleteGoal extends GoalEvent {
-  final Goal goal;
-  CompleteGoal(this.goal);
-}
-
-//============================================================
-//
-//============================================================
-class ClearGoal extends GoalEvent {
-  final BuildContext context;
-  ClearGoal(this.context);
-}
-
-class DeleteDatabase extends GoalEvent {}
-
 EventTransformer<T> debounceTime<T>(Duration duration) {
   return (events, mapper) => events.debounceTime(duration).switchMap(mapper);
 }
 
 //============================================================
-// Bloc State
-//============================================================
-class GoalState {}
-
-//============================================================
 // Bloc 객체
 //============================================================
-class GoalBloc extends Bloc<GoalEvent, List<Goal>> {
-  late List<Goal> _goals;
-  get goals => _goals;
-
-  GoalBloc() : super(<Goal>[]) {
-    on<InitGoal>(_onInitGoal);
-    on<AddGoal>(
+class GoalBloc extends Bloc<GoalEvent, GoalState> {
+  final GoalRepository _goalRepository;
+  GoalBloc(this._goalRepository) : super(InitGoalState()) {
+    on<LoadRootGoalEvent>(_loadRootGoal);
+    on<LoadCompleteGoalEvent>(_loadCompleteGoal);
+    on<AddGoalEvent>(
       _addGoal,
-      transformer: droppable(),
+      transformer: droppable(), // when new event comes, drop previous event
     );
-    on<RemoveGoal>(_removeGoal);
-    on<CompleteGoal>(_completeGoal);
-    on<EditGoal>(_editGoal);
-    //========================================================
-    // dev
-    //========================================================
-    on<ClearGoal>(
-      _clearGoal,
-      transformer: debounceTime<ClearGoal>(const Duration(milliseconds: 1000)),
-    );
-    on<DeleteDatabase>((event, emit) {
-      GoalRepository.deleteDatabase();
-    });
+    on<RemoveGoalEvent>(_removeGoal);
+    on<CompleteGoalEvent>(_completeGoal);
+    on<EditGoalEvent>(_editGoal);
+    add(LoadRootGoalEvent());
+    add(LoadCompleteGoalEvent());
   }
+
   //================================================================
-  // Bloc에 전달된 Event를 처리하는 함수
+  // Bloc Initializer
   //================================================================
-  void _onInitGoal(InitGoal event, Emitter<List<Goal>> emit) async {
-    if (state.isEmpty) {
-      // emit(await GoalRepository.getCompleted(true));
-      emit(await GoalRepository.getAll());
+  _loadRootGoal(LoadRootGoalEvent event, Emitter<GoalState> emit) async {
+    emit(InitGoalState());
+    try {
+      final roots = await _goalRepository.getYet();
+      emit(LoadedGoalState(
+        rootGoals: roots,
+        completeGoals: state.completeGoals,
+      ));
+    } catch (e) {
+      emit(ErrorGoalState(e.toString()));
     }
   }
 
-  void _addGoal(AddGoal event, Emitter<List<Goal>> emit) {
-    var goal = Goal(
-      id: makeUUID(),
-      parentId: event.parentId,
-      content: event.text,
-      goalDate: DateTime.now(),
-    );
-    GoalRepository.insert(goal);
-    emit([goal, ...state]);
+  _loadCompleteGoal(
+      LoadCompleteGoalEvent event, Emitter<GoalState> emit) async {
+    emit(InitGoalState());
+    try {
+      final completed = await _goalRepository.getCompleted();
+      emit(LoadedGoalState(
+        rootGoals: state.rootGoals,
+        completeGoals: completed ,
+      ));
+    } catch (e) {
+      emit(ErrorGoalState(e.toString()));
+    }
   }
 
-  void _removeGoal(RemoveGoal event, Emitter<List<Goal>> emit) {
-    GoalRepository.remove(event.goal);
-    emit(state.where((element) => element != event.goal).toList());
+  //================================================================
+  // Bloc에 전달된 Event를 처리하는 함수
+  //================================================================
+  void _addGoal(AddGoalEvent event, Emitter<GoalState> emit) {
+    emit(const LoadingGoalState());
+    // 만약에, 완료한 목표를 복구한다면, UI만 변경
+    if (event.goal == null) {
+      var goal = Goal(
+        id: makeUUID(),
+        parentId: event.parentId,
+        content: event.text,
+        goalDate: DateTime.now(),
+      );
+      _goalRepository.insert(goal);
+      emit(LoadedGoalState(
+        rootGoals: [...state.rootGoals!, goal],
+        completeGoals: state.completeGoals,
+      ));
+    } else {
+      emit(LoadedGoalState(
+        rootGoals: [...state.rootGoals!, event.goal!],
+        completeGoals: state.completeGoals,
+      ));
+    }
   }
 
-  void _completeGoal(CompleteGoal event, Emitter<List<Goal>> emit) {
+  void _removeGoal(RemoveGoalEvent event, Emitter<GoalState> emit) {
+    emit(const LoadingGoalState());
+    _goalRepository.remove(event.goal);
+    emit(LoadedGoalState(
+      rootGoals:
+          state.rootGoals!.where((element) => element != event.goal).toList(),
+      completeGoals: state.completeGoals,
+    ));
+  }
+
+  void _completeGoal(CompleteGoalEvent event, Emitter<GoalState> emit) async {
+    emit(const LoadingGoalState());
+    // value copy
     var goal = event.goal.copyWith(done: true);
-    GoalRepository.update(goal);
+    await _goalRepository.update(goal);
+    // root -> complete
+    emit(LoadedGoalState(
+      rootGoals:
+          state.rootGoals!.where((element) => element != event.goal).toList(),
+      completeGoals: [...state.completeGoals!, goal],
+    ));
   }
 
-  void _editGoal(EditGoal event, Emitter<List<Goal>> emit) {
+  void _editGoal(EditGoalEvent event, Emitter<GoalState> emit) {
+    emit(const LoadingGoalState());
     // type mismatch => not update ui
-    GoalRepository.update(event.goal);
-    _goals = state.map((e) {
-      if (e.id == event.goal.id) {
+    _goalRepository.update(event.goal);
+
+    var goals = state.rootGoals!.map((prev) {
+      if (prev.id == event.goal.id) {
         return event.goal;
       } else {
-        return e;
+        return prev;
       }
     }).toList();
-    _goals.sort((a, b) => a.goalDate.compareTo(b.goalDate));
-    emit([..._goals]);
-  }
 
-  //================================================================
-  // dev
-  //================================================================
-  void _clearGoal(ClearGoal event, Emitter<List<Goal>> emit) {
-    showDialog(
-      context: event.context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear all goals?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              GoalRepository.removeAll().whenComplete(() {
-                Navigator.pop(context);
-                InitGoal();
-              });
-            },
-            child: const Text('Clear'),
-          ),
-        ],
-      ),
-    );
+    goals.sort((a, b) => a.goalDate.compareTo(b.goalDate));
+    emit(LoadedGoalState(
+      rootGoals: goals,
+      completeGoals: state.completeGoals,
+    ));
   }
+}
+
+//==============================================================================
+// Event 객체를 만들어서 Bloc에 전달
+//==============================================================================
+abstract class GoalEvent extends Equatable {}
+
+class LoadRootGoalEvent extends GoalEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class LoadCompleteGoalEvent extends GoalEvent {
+  @override
+  List<Object> get props => [];
+}
+
+// Create
+class AddGoalEvent extends GoalEvent {
+  final String text;
+  final String parentId;
+  final Goal? goal;
+
+  AddGoalEvent(
+    this.text, {
+    this.goal,
+    this.parentId = 'root',
+  });
+
+  @override
+  List<Object?> get props => [];
+}
+
+// Update
+class EditGoalEvent extends GoalEvent {
+  final Goal goal;
+  EditGoalEvent(this.goal);
+  @override
+  List<Object?> get props => [];
+}
+
+class CompleteGoalEvent extends GoalEvent {
+  final Goal goal;
+  CompleteGoalEvent(this.goal);
+  @override
+  List<Object?> get props => [];
+}
+
+class CancelGoalCompleteEvent extends GoalEvent {
+  final Goal goal;
+  CancelGoalCompleteEvent(this.goal);
+  @override
+  List<Object?> get props => [];
+}
+
+// Delete
+class RemoveGoalEvent extends GoalEvent {
+  final Goal goal;
+  RemoveGoalEvent(this.goal);
+  @override
+  List<Object?> get props => [];
+}
+
+class ClearGoalEvent extends GoalEvent {
+  final BuildContext context;
+  ClearGoalEvent(this.context);
+  @override
+  List<Object?> get props => [];
+}
+
+//============================================================
+// Bloc State
+//============================================================
+abstract class GoalState extends Equatable {
+  final List<Goal>? rootGoals;
+  final List<Goal>? completeGoals;
+  const GoalState({
+    this.rootGoals,
+    this.completeGoals,
+  });
+}
+
+class InitGoalState extends GoalState {
+  InitGoalState() : super(rootGoals: <Goal>[], completeGoals: <Goal>[]);
+  @override
+  List<Object?> get props => [rootGoals, completeGoals];
+}
+
+class LoadingGoalState extends GoalState {
+  const LoadingGoalState({
+    super.rootGoals,
+    super.completeGoals,
+  });
+  @override
+  List<Object?> get props => [rootGoals, completeGoals];
+}
+
+class LoadedGoalState extends GoalState {
+  const LoadedGoalState({
+    super.rootGoals,
+    super.completeGoals,
+  });
+  @override
+  List<Object?> get props => [rootGoals, completeGoals];
+}
+
+class ErrorGoalState extends GoalState {
+  final String message;
+  const ErrorGoalState(this.message);
+  @override
+  List<Object?> get props => [message];
 }

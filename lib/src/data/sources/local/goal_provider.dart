@@ -105,14 +105,10 @@ class GoalProvider {
     });
   }
 
-  Future<List<Goal>> getCompleted(bool not) async {
+  Future<List<Goal>> getYet() async {
     final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'goal',
-      where: '$columnDone = ?',
-      whereArgs: [not ? 0 : 1],
-      orderBy: '$columnPriority ASC',
-    );
+    final List<Map<String, dynamic>> maps = await db.query('goal',
+        orderBy: '$columnPriority ASC', where: '$columnDone = 0');
 
     return List.generate(maps.length, (i) {
       var goalDate = int.parse(maps[i][columnPriority].toString());
@@ -128,39 +124,18 @@ class GoalProvider {
     });
   }
 
-  Future<List<Goal>> getRoots({bool done = false}) async {
+  Future<List<Goal>> getCompleted(bool not) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       'goal',
-      where: '$columnParentId = ? AND $columnDone = ?',
-      whereArgs: ['root', done ? 1 : 0],
+      where: '$columnDone = ?',
+      whereArgs: [not ? 0 : 1],
       orderBy: '$columnPriority ASC',
     );
 
     return List.generate(maps.length, (i) {
       var goalDate = int.parse(maps[i][columnPriority].toString());
-      return Goal(
-        id: maps[i][columnId],
-        parentId: maps[i][columnParentId],
-        content: maps[i][columnContent],
-        goalDate: DateTime.fromMillisecondsSinceEpoch(goalDate),
-        priority: maps[i][columnPriority],
-        done: maps[i][columnDone] == 1,
-      );
-    });
-  }
-
-  Future<List<Goal>> getChildren(parentId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'goal',
-      where: '$columnParentId = ? AND $columnDone = ?',
-      whereArgs: [parentId, 0],
-      orderBy: '$columnPriority ASC',
-    );
-
-    return List.generate(maps.length, (i) {
-      var goalDate = int.parse(maps[i][columnPriority].toString());
+      // _logger.i('goalDate: $goalDate');
       return Goal(
         id: maps[i][columnId],
         parentId: maps[i][columnParentId],

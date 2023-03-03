@@ -20,7 +20,7 @@ class ListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GoalBloc, List<Goal>>(builder: (context, goals) {
+    return BlocBuilder<GoalBloc, GoalState>(builder: (context, goals) {
       return Dismissible(
         key: Key(goal.id),
         background: const SuccessContainer(),
@@ -28,7 +28,7 @@ class ListItem extends StatelessWidget {
         onDismissed: (direction) {
           if (direction == DismissDirection.endToStart) {
             // logic for delete
-            context.read<GoalBloc>().add(RemoveGoal(goal));
+            context.read<GoalBloc>().add(RemoveGoalEvent(goal));
             Get.snackbar(
               '삭제 완료',
               "목표가 삭제되었습니다.",
@@ -38,7 +38,7 @@ class ListItem extends StatelessWidget {
               duration: const Duration(seconds: 2),
             );
           } else {
-            context.read<GoalBloc>().add(RemoveGoal(goal));
+            context.read<GoalBloc>().add(CompleteGoalEvent(goal));
             Get.snackbar(
               '달성 완료',
               "목표를 달성하셨습니다.",
@@ -72,14 +72,18 @@ class ListItem extends StatelessWidget {
                       ],
                     ));
           } else {
-            if (goals
+            if (goals.rootGoals!
                 .where((element) => element.parentId == goal.id)
                 .isNotEmpty) {
               return showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text("하위 목표가 존재합니다."),
-                  content: const Text("정말 달성하셨나요?"),
+                  title: Text("하위 목표가 존재합니다.",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface)),
+                  content: Text("정말 달성하셨나요?",
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface)),
                   actions: [
                     ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(true),

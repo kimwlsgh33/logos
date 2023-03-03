@@ -30,13 +30,13 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
   @override
   Widget build(BuildContext context) {
     onAdd(String value) =>
-        context.read<GoalBloc>().add(AddGoal(value, parentId: widget.goal.id));
+        context.read<GoalBloc>().add(AddGoalEvent(value, parentId: widget.goal.id));
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const TypingCard(text: '어떻게?'),
+          title: const TypingCard(text: '목표를 달성하기 위한 세부 목표'),
           elevation: 0,
           actions: [
             IconButton(
@@ -54,8 +54,8 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
                 children: [
                   Hero(
                     tag: widget.goal.id,
-                    child: BlocSelector<GoalBloc, List<Goal>, Goal>(
-                        selector: (state) => state.firstWhere(
+                    child: BlocSelector<GoalBloc, GoalState, Goal>(
+                        selector: (state) => state.rootGoals!.firstWhere(
                               (goal) => goal.id == widget.goal.id,
                               orElse: () => Goal.empty(),
                             ),
@@ -81,7 +81,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
               ),
             ),
             mediumVerticalSpace(),
-            BlocBuilder<GoalBloc, List<Goal>>(builder: goalListBuilder)
+            BlocBuilder<GoalBloc, GoalState>(builder: goalListBuilder)
           ],
         ),
       ),
@@ -94,8 +94,8 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
     super.dispose();
   }
 
-  Widget goalListBuilder(BuildContext context, List<Goal> goals) {
-    var children = goals.where((e) => e.parentId == widget.goal.id).toList();
+  Widget goalListBuilder(BuildContext context, GoalState goals) {
+    var children = goals.rootGoals!.where((e) => e.parentId == widget.goal.id).toList();
     children.sort((a, b) => a.priority.compareTo(b.priority));
 
     return Expanded(

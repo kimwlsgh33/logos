@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class SuccessContainer extends StatelessWidget {
-  const SuccessContainer({super.key});
+class CancelContainer extends StatelessWidget {
+  const CancelContainer ({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
+        color: Theme.of(context).splashColor,
         borderRadius: BorderRadius.circular(10),
       ),
       child: const Align(
@@ -15,7 +15,7 @@ class SuccessContainer extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.only(left: 16),
           child: Icon(
-            Icons.check_circle_outline_rounded,
+            Icons.replay_circle_filled_rounded,
             color: Colors.white,
           ),
         ),

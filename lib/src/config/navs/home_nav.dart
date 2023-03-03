@@ -59,7 +59,7 @@ class _HomeNavState extends State<HomeNav> {
           Icon(Icons.check_rounded,
               color: _page == 0 ? Colors.white : Colors.white),
           Icon(Icons.home, color: _page == 1 ? Colors.white : Colors.white),
-          Icon(Icons.wordpress, color: _page == 2 ? Colors.white : Colors.white),
+          Icon(Icons.emoji_objects_rounded, color: _page == 2 ? Colors.white : Colors.white),
           // if (Responsive.isDesktop(context))
           // if (Responsive.isDesktop(context))
           //     NavigationDestination(

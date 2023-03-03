@@ -16,6 +16,7 @@ final msLightTheme = ThemeData.light().copyWith(
   ),
   textTheme: GoogleFonts.nanumGothicTextTheme(),
   splashColor: Colors.amber,
+  highlightColor: Colors.green,
   focusColor: Colors.amber,
   hintColor: Colors.grey,
   colorScheme: const ColorScheme.light().copyWith(
@@ -35,8 +36,12 @@ final msDarkTheme = ThemeData.dark().copyWith(
     bodyLarge: GoogleFonts.nanumGothicTextTheme().bodyLarge!.copyWith(
           color: Colors.white,
         ),
+    displayMedium: GoogleFonts.nanumGothicTextTheme().displayMedium!.copyWith(
+          color: Colors.white,
+        ),
   ),
   splashColor: Colors.amber,
+  highlightColor: Colors.greenAccent,
   focusColor: Colors.amber,
   hintColor: Colors.grey,
   colorScheme: const ColorScheme.light().copyWith(

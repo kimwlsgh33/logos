@@ -4,11 +4,11 @@ import 'package:get/get.dart';
 
 abstract class ThemeEvent {}
 
-class ChangeTheme extends ThemeEvent {}
+class ToggleTheme extends ThemeEvent {}
 
 class ThemeBloc extends Bloc<ThemeEvent, bool> {
-  ThemeBloc() : super(false) {
-    on<ChangeTheme>((event, emit) {
+  ThemeBloc(bool isDark) : super(isDark) {
+    on<ToggleTheme>((event, emit) {
       Get.changeThemeMode(state ? ThemeMode.light : ThemeMode.dark);
       emit(!state);
     });

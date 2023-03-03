@@ -83,7 +83,6 @@ class AnswerCard extends StatelessWidget {
                 goal.content,
                 style: const TextStyle(
                   fontSize: 18,
-                  // fontWeight: FontWeight.w700,
                 ),
                 maxLines: 3,
               ),

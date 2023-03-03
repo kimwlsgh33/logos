@@ -6,22 +6,25 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart' as trans;
 import 'package:logos/src/config/routes/getx_routes.dart';
 import 'package:logos/src/config/theme.dart';
-import 'package:logos/src/model/repositories/goal_repository.dart';
-import 'package:logos/src/presenter/blocs/observer.dart';
 import 'package:logos/src/presenter/blocs/providers/complete_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/theme_bloc.dart';
 import 'package:logos/src/presenter/views/goals/goal_detail_screen.dart';
 import 'package:logos/src/presenter/views/goals/goal_edit_screen.dart';
 import 'package:logos/src/presenter/views/main/main_screen.dart';
+import 'package:logos/src/presenter/views/perchase/bloc/product_bloc.dart';
+import 'package:logos/src/presenter/views/perchase/repo/license_repository.dart';
+import 'package:logos/src/presenter/views/perchase/repo/product_repository.dart';
 //==============================================================================
 
+// import 'package:leadu/src/presenter/views/todos/today_screen.dart';
+
 Future<void> main(List<String> args) async {
-  Bloc.observer = MyBlocObserver();
   // WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
+// App 초기설정, 전체 state 관리
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -30,20 +33,31 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  // final _logger = Logger();
+
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-      create: (context) => GoalRepository(),
+    print(ThemeMode.system);
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider<ProductRepository>(
+            create: (context) => ProductRepository()),
+        RepositoryProvider<LicenseRepository>(
+            create: (context) => LicenseRepository()),
+      ],
       child: MultiBlocProvider(
         providers: [
           BlocProvider<ThemeBloc>(
-              create: (_) => ThemeBloc(Get.isPlatformDarkMode)),
-          BlocProvider<GoalBloc>(
-            create: (context) => GoalBloc(
-              context.read<GoalRepository>(),
+              create: (_) => ThemeBloc(ThemeMode.system.toString() == 'ThemeMode.dark')),
+          BlocProvider<GoalBloc>(create: (_) => GoalBloc()),
+          BlocProvider<GoalCompleteBloc>(create: (_) => GoalCompleteBloc()),
+          // Product Bloc
+          BlocProvider<ProductBloc>(
+            create: (context) => ProductBloc(
+              context.read<ProductRepository>(),
+              context.read<LicenseRepository>(),
             ),
           ),
-          // BlocProvider<GoalCompleteBloc>(create: (_) => GoalCompleteBloc()),
         ],
         child: GetMaterialApp(
           debugShowCheckedModeBanner: false,

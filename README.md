@@ -1,16 +1,26 @@
 # logos
 
-A new Flutter project.
+## 1.0.4
 
-## Getting Started
+### style
+- 네비게이션바 수정
+- 사용자 다크 모드 초기화 추가
 
-This project is a starting point for a Flutter application.
+### logic
+- 계획 추가 순서변경
+  맨뒤에 추가
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+# 개발 예정
+1. [ ] 블록 나누기
+  * [ ] 미완료 블록
+  * [ ] 완료 블록
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+2. [ ] 우선 순위 전체 정렬
+  * [ ] reigns 게임 스타일로 스와이프 하면서 우선순위 설정
+    - [ ] 버블 정렬
+
+3. [ ] 블록 누르면 하위 리스트 보이기
+  * [ ] layout 선택
+
+4. [ ] 목표 완료 애니메이션 추가
