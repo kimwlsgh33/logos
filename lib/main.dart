@@ -8,7 +8,6 @@ import 'package:logos/src/config/routes/getx_routes.dart';
 import 'package:logos/src/config/theme.dart';
 import 'package:logos/src/model/repositories/goal_repository.dart';
 import 'package:logos/src/presenter/blocs/observer.dart';
-import 'package:logos/src/presenter/blocs/providers/complete_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/theme_bloc.dart';
 import 'package:logos/src/presenter/views/goals/goal_detail_screen.dart';

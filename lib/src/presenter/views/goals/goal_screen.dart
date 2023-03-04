@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logos/src/model/entities/goal.dart';
-// import 'package:logos/src/model/repositories/goal_repository.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/theme_bloc.dart';
 import 'package:logos/src/presenter/views/widgets/full_row_textfield.dart';
@@ -32,7 +31,6 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.background,
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -92,13 +90,16 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
 }
 
 Widget goalListBuilder(BuildContext context, List<Goal> goals) {
+  var roots = goals.where((element) => element.parentId == "root").toList();
+  roots.sort((a, b) => a.priority.compareTo(b.priority));
+
   return Expanded(
     child: ListView.separated(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: goals.length,
+      itemCount: roots.length,
       itemBuilder: (context, index) => ListItem(
-        key: ValueKey(goals[index].id),
-        goal: goals[index],
+        key: ValueKey(roots[index].id),
+        goal: roots[index],
         index: index,
       ),
       separatorBuilder: (context, index) => smallVerticalSpace(),

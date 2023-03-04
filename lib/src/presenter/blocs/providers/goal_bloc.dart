@@ -101,21 +101,6 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
     }
   }
 
-  void _removeGoal(RemoveGoalEvent event, Emitter<GoalState> emit) async {
-    emit(LoadingGoalState(
-      rootGoals: state.rootGoals,
-      completeGoals: state.completeGoals,
-    ));
-    _goalRepository.remove(event.goal);
-    final next =
-        state.rootGoals!.where((element) => element != event.goal).toList();
-
-    emit(LoadedGoalState(
-      rootGoals: next,
-      completeGoals: state.completeGoals,
-    ));
-  }
-
   void _editGoal(EditGoalEvent event, Emitter<GoalState> emit) {
     emit(LoadingGoalState(
       rootGoals: state.rootGoals,
@@ -173,6 +158,30 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       rootGoals: [...state.rootGoals!, goal],
       completeGoals: nextComplete,
     ));
+  }
+
+  void _removeGoal(RemoveGoalEvent event, Emitter<GoalState> emit) async {
+    emit(LoadingGoalState(
+      rootGoals: state.rootGoals,
+      completeGoals: state.completeGoals,
+    ));
+    _goalRepository.remove(event.goal);
+    if (event.goal.done) {
+      final next = state.completeGoals!
+          .where((element) => element != event.goal)
+          .toList();
+      emit(LoadedGoalState(
+        rootGoals: state.rootGoals,
+        completeGoals: next,
+      ));
+    } else {
+      final next =
+          state.rootGoals!.where((element) => element != event.goal).toList();
+      emit(LoadedGoalState(
+        rootGoals: next,
+        completeGoals: state.completeGoals,
+      ));
+    }
   }
 }
 

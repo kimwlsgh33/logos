@@ -52,7 +52,7 @@ class _HomeNavState extends State<HomeNav> {
       bottomNavigationBar: CurvedNavigationBar(
         index: _page,
         buttonBackgroundColor: Theme.of(context).colorScheme.primary,
-        backgroundColor: Theme.of(context).colorScheme.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         color: Theme.of(context).colorScheme.primary,
         onTap: onPageChanged,
         items: [

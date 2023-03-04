@@ -28,7 +28,7 @@ final msLightTheme = ThemeData.light().copyWith(
 );
 
 final msDarkTheme = ThemeData.dark().copyWith(
-  scaffoldBackgroundColor: const Color.fromRGBO(18, 18, 18, 1),
+  scaffoldBackgroundColor: Colors.black,
   appBarTheme: const AppBarTheme(
     systemOverlayStyle: SystemUiOverlayStyle.light,
   ),
@@ -47,7 +47,8 @@ final msDarkTheme = ThemeData.dark().copyWith(
   colorScheme: const ColorScheme.light().copyWith(
     primary: kPrimaryColor,
     // background: const Color(0xFFFAF9F8),
-    background: Colors.black,
+    // background: Colors.black,
+    background: const Color.fromRGBO(18, 18, 18, 1),
     secondary: Colors.grey,
     onPrimary: Colors.white,
     surface: const Color(0xFF1C1C1D),

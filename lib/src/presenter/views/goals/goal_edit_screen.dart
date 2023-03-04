@@ -109,6 +109,13 @@ class _GoalEditScreenState extends State<GoalEditScreen> {
                   ),
                 ),
                 smallVerticalSpace(),
+                Text(
+                  widget.goal.parentId.toString(),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                smallVerticalSpace(),
                 TextFormField(
                   controller: _textController,
                   validator: (value) {
