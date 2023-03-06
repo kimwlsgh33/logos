@@ -69,19 +69,19 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
             ],
           ),
         ),
-        floatingActionButton:
-            // FloatingActionButton(
-            //   onPressed: () => GoalDatabase().deleteDB(),
-            //   child: const Icon(Icons.check),
-            // ),
-            BlocBuilder<ThemeBloc, bool>(builder: (context, isDark) {
-          return FloatingActionButton(
-            onPressed: () => context.read<ThemeBloc>().add(ToggleTheme()),
-            child: isDark
-                ? const Icon(Icons.light_mode_rounded)
-                : const Icon(Icons.dark_mode_rounded),
-          );
-        }),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => GoalDatabase().deleteDB(),
+          child: const Icon(Icons.check),
+        ),
+        // floatingActionButton:
+        //     BlocBuilder<ThemeBloc, bool>(builder: (context, isDark) {
+        //   return FloatingActionButton(
+        //     onPressed: () => context.read<ThemeBloc>().add(ToggleTheme()),
+        //     child: isDark
+        //         ? const Icon(Icons.light_mode_rounded)
+        //         : const Icon(Icons.dark_mode_rounded),
+        //   );
+        // }),
       ),
     );
   }

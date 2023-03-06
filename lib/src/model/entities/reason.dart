@@ -9,7 +9,7 @@ class Reason {
   final String reason;
 
   Reason({
-    this.id = 0,
+    this.id,
     required this.goalId,
     required this.reason,
   });
