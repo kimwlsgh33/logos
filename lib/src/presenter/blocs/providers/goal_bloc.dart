@@ -87,6 +87,7 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
         parentId: event.parentId,
         content: event.text,
         goalDate: DateTime.now(),
+        startDate: DateTime.now(),
       );
       _goalRepository.insert(goal);
       emit(LoadedGoalState(

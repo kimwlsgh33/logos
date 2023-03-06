@@ -3,6 +3,7 @@ const columnId = 'id';
 const columnParentId = 'parentId';
 const columnContent = 'content';
 const columnGoalDate = 'goal_date';
+const columnStartDate = 'start_date';
 const columnPriority = 'priority';
 const columnDone = 'done';
 
@@ -11,6 +12,7 @@ class Goal {
   String parentId;
   String content; // 목표 내용
   DateTime goalDate; // 목표 완료 날짜
+  DateTime startDate; // 목표 완료 날짜
   int priority; // 목표 우선순위
   bool done; // 목표 완료 여부
 
@@ -19,6 +21,7 @@ class Goal {
     this.parentId = 'root',
     required this.content,
     required this.goalDate,
+    required this.startDate,
     this.priority = 99,
     this.done = false,
   });
@@ -28,6 +31,7 @@ class Goal {
         parentId = '',
         content = '',
         goalDate = DateTime.now(),
+        startDate = DateTime.now(),
         priority = 99,
         done = false;
 
@@ -36,6 +40,7 @@ class Goal {
         parentId = map[columnParentId],
         content = map[columnContent],
         goalDate = DateTime.fromMillisecondsSinceEpoch(map[columnGoalDate]),
+        startDate = DateTime.fromMillisecondsSinceEpoch(map[columnGoalDate]),
         priority = map[columnPriority],
         done = map[columnDone] == 1;
 
@@ -43,6 +48,7 @@ class Goal {
         columnId: id,
         columnContent: content,
         columnGoalDate: goalDate.microsecondsSinceEpoch, // convert to int
+        columnStartDate: startDate.microsecondsSinceEpoch, // convert to int
         columnPriority: priority,
         columnDone: done ? 1 : 0,
         columnParentId: parentId,
@@ -53,6 +59,7 @@ class Goal {
     String? parentId,
     String? content,
     DateTime? goalDate,
+    DateTime? startDate,
     int? priority,
     bool? done,
   }) =>
@@ -61,6 +68,7 @@ class Goal {
         parentId: parentId ?? this.parentId,
         content: content ?? this.content,
         goalDate: goalDate ?? this.goalDate,
+        startDate: startDate ?? this.startDate,
         priority: priority ?? this.priority,
         done: done ?? this.done,
       );

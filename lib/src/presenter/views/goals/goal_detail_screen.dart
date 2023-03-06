@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 //==============================================================================
 import 'package:logos/src/base/utils.dart';
 import 'package:logos/src/config/routes/getx_routes.dart';
@@ -27,10 +28,16 @@ class GoalDetailScreen extends StatefulWidget {
 class _GoalDetailScreenState extends State<GoalDetailScreen> {
   final TextEditingController _controller = TextEditingController();
 
+  goToGoalReasonScreen() => Get.toNamed(
+        "${GetRouter.goalReason}/id=${widget.goal.id}",
+        arguments: widget.goal,
+      );
+
   @override
   Widget build(BuildContext context) {
-    onAdd(String value) =>
-        context.read<GoalBloc>().add(AddGoalEvent(value, parentId: widget.goal.id));
+    onAdd(String value) => context
+        .read<GoalBloc>()
+        .add(AddGoalEvent(value, parentId: widget.goal.id));
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -52,16 +59,40 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Hero(
-                    tag: widget.goal.id,
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                     child: BlocSelector<GoalBloc, GoalState, Goal>(
-                        selector: (state) => state.rootGoals!.firstWhere(
-                              (goal) => goal.id == widget.goal.id,
-                              orElse: () => Goal.empty(),
+                      selector: (state) => state.rootGoals!.firstWhere(
+                        (goal) => goal.id == widget.goal.id,
+                        orElse: () => Goal.empty(),
+                      ),
+                      builder: (context, state) {
+                        return Column(
+                          children: [
+                            Hero(
+                              tag: widget.goal.id,
+                              child: AnswerCard(
+                                goal: state,
+                                isDetail: true,
+                                onPressed: goToGoalReasonScreen,
+                              ),
                             ),
-                        builder: (context, state) {
-                          return AnswerCard(goal: state, isDetail: true);
-                        }),
+                            smallVerticalSpace(),
+                            Text(
+                              DateFormat('yyyy년 M월 d일')
+                                  .format(state.startDate),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                   smallVerticalSpace(),
                   FullRowTextField(
@@ -95,15 +126,21 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
   }
 
   Widget goalListBuilder(BuildContext context, GoalState goals) {
-    var children = goals.rootGoals!.where((e) => e.parentId == widget.goal.id).toList();
+    var children =
+        goals.rootGoals!.where((e) => e.parentId == widget.goal.id).toList();
     children.sort((a, b) => a.priority.compareTo(b.priority));
 
     return Expanded(
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: children.length,
-        itemBuilder: (context, index) =>
-            ListItem(goal: children[index], index: index),
+        itemBuilder: (context, index) => ListItem(
+          goal: children[index],
+          index: index,
+          existChild: goals.rootGoals!
+              .where((element) => element.parentId == children[index].id)
+              .isNotEmpty,
+        ),
         separatorBuilder: (context, index) => smallVerticalSpace(),
       ),
     );

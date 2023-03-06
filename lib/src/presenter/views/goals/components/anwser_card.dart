@@ -7,12 +7,13 @@ import '../../../../model/entities/goal.dart';
 class AnswerCard extends StatelessWidget {
   final Function()? onPressed;
   final Goal goal;
-  final bool isDetail;
+  final bool isDetail, isReason;
   const AnswerCard({
     super.key,
     this.onPressed,
     required this.goal,
     this.isDetail = false,
+    this.isReason = false,
   });
 
   @override
@@ -33,12 +34,20 @@ class AnswerCard extends StatelessWidget {
         onPressed: onPressed,
         style: TextButton.styleFrom(
           padding: const EdgeInsets.all(8),
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          foregroundColor: Theme.of(context).colorScheme.onSurface,
+          backgroundColor: isDetail
+              ? Theme.of(context).colorScheme.primary
+              : isReason
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.surface,
+          foregroundColor: isDetail
+              ? Theme.of(context).colorScheme.onPrimary
+              : isReason
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Theme.of(context).colorScheme.onSurface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          disabledBackgroundColor: Theme.of(context).colorScheme.primary,
+          // disabledBackgroundColor: Theme.of(context).colorScheme.primary,
           disabledForegroundColor: Theme.of(context).colorScheme.onPrimary,
         ),
         child: Row(
@@ -56,15 +65,14 @@ class AnswerCard extends StatelessWidget {
                   width: 35,
                   height: 35,
                   alignment: Alignment.center,
-                  decoration: onPressed != null
-                      ? BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.primary,
-                            width: 2,
-                          ),
-                        )
-                      : null,
+                  decoration:
+                      BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 2,
+                    ),
+                  ),
                   child: Text(
                     goal.priority.toString(),
                     style: TextStyle(

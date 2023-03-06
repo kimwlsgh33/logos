@@ -2,11 +2,7 @@ import 'package:logos/src/data/sources/local/goal_provider.dart';
 import 'package:logos/src/model/entities/goal.dart';
 
 class GoalRepository {
-  final GoalProvider _goalProvider = GoalProvider();
-
-  Future<void> deleteDatabase() async {
-    await _goalProvider.deleteDatabase();
-  }
+  static final GoalProvider _goalProvider = GoalProvider();
 
   Future<List<Goal>> getAll() async {
     return await _goalProvider.getAll();

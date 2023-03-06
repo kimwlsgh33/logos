@@ -1,55 +1,16 @@
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqflite_dev.dart';
+import 'package:logos/src/data/sources/local/goal_database.dart';
 import '../../../model/entities/goal.dart';
 
 class GoalProvider {
-  static final GoalProvider _instance = GoalProvider._internal();
-  Database? _database;
-
-  factory GoalProvider() => _instance;
-
-  GoalProvider._internal() {
-    init();
-  }
-
-  Future<void> init() async {
-    String path = join(await getDatabasesPath(), 'goal.db');
-    _database = await openDatabase(path, version: 2, onCreate: _onCreate);
-  }
-
-  Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE $tableGoal (
-        $columnId TEXT PRIMARY KEY,
-        $columnParentId TEXT NOT NULL DEFAULT 'root',
-        $columnContent TEXT NOT NULL,
-        $columnGoalDate INTEGER NOT NULL,
-        $columnPriority INTEGER NOT NULL DEFAULT 99,
-        $columnDone INTEGER DEFAULT 0
-      )
-    ''');
-  }
-
-  Future<Database> get database async {
-    if (_database == null) {
-      await init();
-    }
-    return _database!;
-  }
-
-  Future<void> deleteDatabase() async {
-    String path = join(await getDatabasesPath(), 'goal.db');
-    await sqfliteDatabaseFactoryDefault.deleteDatabase(path);
-  }
+  final GoalDatabase _goalDatabase = GoalDatabase.instance;
 
   Future<void> insert(Goal goal) async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     await db.insert('goal', goal.toMap());
   }
 
   Future<Goal> getGoal(Goal goal) async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     final List<Map<String, dynamic>> maps =
         await db.query('goal', where: '$columnId = ?', whereArgs: [goal.getId]);
     return Goal(
@@ -57,13 +18,14 @@ class GoalProvider {
       parentId: maps[0][columnParentId],
       content: maps[0][columnContent],
       goalDate: maps[0][columnGoalDate],
+      startDate: maps[0][columnStartDate],
       priority: maps[0][columnPriority],
       done: maps[0][columnDone] == 1,
     );
   }
 
   Future<void> update(Goal goal) async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     await db.update(
       'goal',
       goal.toMap(),
@@ -73,7 +35,7 @@ class GoalProvider {
   }
 
   Future<void> remove(Goal goal) async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     await db.delete(
       'goal',
       where: '$columnId = ?',
@@ -82,23 +44,24 @@ class GoalProvider {
   }
 
   Future<void> removeAll() async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     await db.delete('goal');
   }
 
   Future<List<Goal>> getAll() async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     final List<Map<String, dynamic>> maps =
         await db.query('goal', orderBy: '$columnPriority ASC');
 
     return List.generate(maps.length, (i) {
-      var goalDate = int.parse(maps[i][columnPriority].toString());
-      // _logger.i('goalDate: $goalDate');
+      var goalDate = int.parse(maps[i][columnGoalDate].toString());
+      var startDate = int.parse(maps[i][columnStartDate].toString());
       return Goal(
         id: maps[i][columnId],
         parentId: maps[i][columnParentId],
         content: maps[i][columnContent],
         goalDate: DateTime.fromMillisecondsSinceEpoch(goalDate),
+        startDate: DateTime.fromMillisecondsSinceEpoch(startDate),
         priority: maps[i][columnPriority],
         done: maps[i][columnDone] == 1,
       );
@@ -106,18 +69,20 @@ class GoalProvider {
   }
 
   Future<List<Goal>> getYet() async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query('goal',
         orderBy: '$columnPriority ASC', where: '$columnDone = 0');
 
     return List.generate(maps.length, (i) {
-      var goalDate = int.parse(maps[i][columnPriority].toString());
+      var goalDate = int.parse(maps[i][columnGoalDate].toString());
+      var startDate = int.parse(maps[i][columnStartDate].toString());
       // _logger.i('goalDate: $goalDate');
       return Goal(
         id: maps[i][columnId],
         parentId: maps[i][columnParentId],
         content: maps[i][columnContent],
         goalDate: DateTime.fromMillisecondsSinceEpoch(goalDate),
+        startDate: DateTime.fromMillisecondsSinceEpoch(startDate),
         priority: maps[i][columnPriority],
         done: maps[i][columnDone] == 1,
       );
@@ -125,7 +90,7 @@ class GoalProvider {
   }
 
   Future<List<Goal>> getCompleted(bool not) async {
-    final db = await database;
+    final db = await _goalDatabase.database;
     final List<Map<String, dynamic>> maps = await db.query(
       'goal',
       where: '$columnDone = ?',
@@ -134,13 +99,15 @@ class GoalProvider {
     );
 
     return List.generate(maps.length, (i) {
-      var goalDate = int.parse(maps[i][columnPriority].toString());
+      var goalDate = int.parse(maps[i][columnGoalDate].toString());
+      var startDate = int.parse(maps[i][columnStartDate].toString());
       // _logger.i('goalDate: $goalDate');
       return Goal(
         id: maps[i][columnId],
         parentId: maps[i][columnParentId],
         content: maps[i][columnContent],
         goalDate: DateTime.fromMillisecondsSinceEpoch(goalDate),
+        startDate: DateTime.fromMillisecondsSinceEpoch(startDate),
         priority: maps[i][columnPriority],
         done: maps[i][columnDone] == 1,
       );

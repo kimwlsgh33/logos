@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logos/src/data/sources/local/goal_database.dart';
 import 'package:logos/src/model/entities/goal.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/theme_bloc.dart';
@@ -63,21 +64,23 @@ class _GoalScreenState extends State<GoalScreen> with TickerProviderStateMixin {
               ),
               // const GoalList(),
               BlocSelector<GoalBloc, GoalState, List<Goal>>(
-                selector: (state) => state.rootGoals!,
-                builder: goalListBuilder
-              ),
+                  selector: (state) => state.rootGoals!,
+                  builder: goalListBuilder),
             ],
           ),
         ),
-        floatingActionButton:
-            BlocBuilder<ThemeBloc, bool>(builder: (context, isDark) {
-          return FloatingActionButton(
-            onPressed: () => context.read<ThemeBloc>().add(ToggleTheme()),
-            child: isDark
-                ? const Icon(Icons.light_mode_rounded)
-                : const Icon(Icons.dark_mode_rounded),
-          );
-        }),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => GoalDatabase().deleteDB(),
+          child: const Icon(Icons.check),
+        ),
+        //     BlocBuilder<ThemeBloc, bool>(builder: (context, isDark) {
+        //   return FloatingActionButton(
+        //     onPressed: () => context.read<ThemeBloc>().add(ToggleTheme()),
+        //     child: isDark
+        //         ? const Icon(Icons.light_mode_rounded)
+        //         : const Icon(Icons.dark_mode_rounded),
+        //   );
+        // }),
       ),
     );
   }
@@ -101,6 +104,7 @@ Widget goalListBuilder(BuildContext context, List<Goal> goals) {
         key: ValueKey(roots[index].id),
         goal: roots[index],
         index: index,
+        existChild: goals.any((element) => element.parentId == roots[index].id),
       ),
       separatorBuilder: (context, index) => smallVerticalSpace(),
     ),

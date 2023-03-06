@@ -1,0 +1,111 @@
+import 'package:logos/src/presenter/blocs/observer.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqflite_dev.dart';
+import '../../../model/entities/reason.dart';
+
+class ReasonProvider {
+  static final ReasonProvider _instance = ReasonProvider._internal();
+  Database? _database;
+
+  factory ReasonProvider() => _instance;
+
+  ReasonProvider._internal() {
+    init();
+  }
+
+  Future<void> init() async {
+    String path = join(await getDatabasesPath(), 'goal.db');
+    _database = await openDatabase(path, version: 2, onCreate: _onCreate);
+  }
+
+  Future<void> _onCreate(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE $tableReason (
+        $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
+        $columnReasonId TEXT NOT NULL DEFAULT 'root',
+        $columnContent TEXT NOT NULL,
+      )
+    ''');
+  }
+
+  Future<Database> get database async {
+    if (_database == null) {
+      await init();
+    }
+    return _database!;
+  }
+
+  Future<void> deleteDatabase() async {
+    String path = join(await getDatabasesPath(), 'reason.db');
+    await sqfliteDatabaseFactoryDefault.deleteDatabase(path);
+  }
+
+  Future<void> insert(Reason reason) async {
+    final db = await database;
+    await db.insert('reason', reason.toMap());
+  }
+
+  Future<Reason> getReason(Reason reason) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps =
+        await db.query('reason', where: '$columnId = ?', whereArgs: [reason.getId]);
+    return Reason(
+      id: maps[0][columnId],
+      goalId: maps[0][columnReasonId],
+      content: maps[0][columnContent],
+    );
+  }
+
+  Future<void> update(Reason reason) async {
+    final db = await database;
+    await db.update(
+      'reason',
+      reason.toMap(),
+      where: '$columnId = ?',
+      whereArgs: [reason.getId],
+    );
+  }
+
+  Future<void> remove(Reason reason) async {
+    final db = await database;
+    await db.delete(
+      'reason',
+      where: '$columnId = ?',
+      whereArgs: [reason.getId],
+    );
+  }
+
+  Future<void> removeAll() async {
+    final db = await database;
+    await db.delete('reason');
+  }
+
+  Future<List<Reason>> getAll() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('reason');
+    logger.i(maps);
+
+    return List.generate(maps.length, (i) {
+      return Reason(
+        id: maps[i][columnId],
+        goalId: maps[i][columnReasonId],
+        content: maps[i][columnContent],
+      );
+    });
+  }
+
+  Future<List<Reason>> getByGoalId(String goalId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db
+        .query('reason', where: '$columnReasonId = ?', whereArgs: [goalId]);
+
+    return List.generate(maps.length, (i) {
+      return Reason(
+        id: maps[i][columnId],
+        goalId: maps[i][columnReasonId],
+        content: maps[i][columnContent],
+      );
+    });
+  }
+}

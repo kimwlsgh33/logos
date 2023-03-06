@@ -12,7 +12,7 @@ class MyBlocObserver extends BlocObserver {
 
   @override
   void onTransition(Bloc bloc, Transition transition) {
-    logger.d(transition);
+    // logger.d(transition);
     super.onTransition(bloc, transition);
   }
 
