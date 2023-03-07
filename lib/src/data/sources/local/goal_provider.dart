@@ -81,8 +81,8 @@ class GoalProvider {
         id: maps[i][columnId],
         parentId: maps[i][columnParentId],
         content: maps[i][columnContent],
-        goalDate: DateTime.fromMillisecondsSinceEpoch(goalDate),
-        startDate: DateTime.fromMillisecondsSinceEpoch(startDate),
+        goalDate: DateTime.fromMicrosecondsSinceEpoch(goalDate),
+        startDate: DateTime.fromMicrosecondsSinceEpoch(startDate),
         priority: maps[i][columnPriority],
         done: maps[i][columnDone] == 1,
       );

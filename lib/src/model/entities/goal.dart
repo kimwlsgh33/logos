@@ -39,8 +39,8 @@ class Goal {
       : id = map[columnId],
         parentId = map[columnParentId],
         content = map[columnContent],
-        goalDate = DateTime.fromMillisecondsSinceEpoch(map[columnGoalDate]),
-        startDate = DateTime.fromMillisecondsSinceEpoch(map[columnGoalDate]),
+        goalDate = DateTime.fromMicrosecondsSinceEpoch(map[columnGoalDate]),
+        startDate = DateTime.fromMicrosecondsSinceEpoch(map[columnGoalDate]),
         priority = map[columnPriority],
         done = map[columnDone] == 1;
 
