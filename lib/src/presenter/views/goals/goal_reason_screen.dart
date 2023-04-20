@@ -52,7 +52,7 @@ class _GoalReasonScreenState extends State<GoalReasonScreen> {
                 smallVerticalSpace(),
                 FullRowTextField(
                   controller: _controller,
-                  hintText: '계획을 입력해주세요',
+                  hintText: '이유를 입력해주세요',
                   onSubmitted: onAdd,
                 ),
                 smallVerticalSpace(),

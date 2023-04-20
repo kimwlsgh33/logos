@@ -2,10 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart' as trans;
+
 import 'package:intl/date_symbol_data_local.dart';
+
 import 'package:logos/src/config/routes/getx_routes.dart';
+
 import 'package:logos/src/config/theme.dart';
 import 'package:logos/src/model/repositories/goal_repository.dart';
 import 'package:logos/src/model/repositories/reason_repository.dart';
@@ -13,6 +17,7 @@ import 'package:logos/src/model/repositories/reason_repository.dart';
 import 'package:logos/src/presenter/blocs/providers/goal_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/reason_bloc.dart';
 import 'package:logos/src/presenter/blocs/providers/theme_bloc.dart';
+
 import 'package:logos/src/presenter/views/goals/goal_detail_screen.dart';
 import 'package:logos/src/presenter/views/goals/goal_edit_screen.dart';
 import 'package:logos/src/presenter/views/goals/goal_reason_screen.dart';
